@@ -1,52 +1,44 @@
 package ru.hse.spb
 
-// problem 51B: http://codeforces.com/contest/51/submission/42777201
+// problem 51B: http://codeforces.com/contest/51/submission/43508055
 
-class TableParser {
+fun getTableSizes(text: String): List<Int> {
+    val string = StringBuffer(text.replace("\n", ""))
+    return parseTable(string).sorted()
+}
 
-    private var listOfSizes = mutableListOf<Int>()
-    private var string = ""
+private fun parseTable(tableString: StringBuffer): List<Int> {
+    var cells = 0
+    val listOfSizes = mutableListOf<Int>()
 
-    fun getTableSizes(text: String): List<Int> {
-        listOfSizes = mutableListOf()
-        string = text.replace("\n", "")
-        parseTable()
-        return listOfSizes.sorted()
-    }
-
-    private fun parseTable() {
-        var cells = 0
-        while (string.isNotEmpty()) {
-            when {
-                string.startsWith("<table>") -> {
-                    removeTag("<table>")
-                    parseTable()
-                }
-                string.startsWith("</table>") -> {
-                    listOfSizes.add(cells)
-                    removeTag("</table>")
-                    return
-                }
-                string.startsWith("<td>") -> {
-                    removeTag("<td>")
-                    cells++
-                }
-                string.startsWith("<tr>") -> {
-                    removeTag("<tr>")
-                }
-                string.startsWith("</tr>") -> {
-                    removeTag("</tr>")
-                }
-                string.startsWith("</td>") -> {
-                    removeTag("</td>")
-                }
-                else -> return
+    while (tableString.isNotEmpty()) {
+        when {
+            tableString.advanceIf("<table>") -> {
+                listOfSizes.addAll(parseTable(tableString))
             }
+            tableString.advanceIf("</table>") -> {
+                listOfSizes.add(cells)
+                return listOfSizes
+            }
+            tableString.advanceIf("<td>") -> {
+                cells++
+            }
+            tableString.advanceIf("<tr>") -> {
+            }
+            tableString.advanceIf("</tr>") -> {
+            }
+            tableString.advanceIf("</td>") -> {
+            }
+            else -> return listOfSizes
         }
     }
 
-    private fun removeTag(tag: String) {
-        string = string.removePrefix(tag)
+    return listOfSizes
+}
+
+private fun StringBuffer.advanceIf(tag: String): Boolean {
+    return this.startsWith(tag).also { starts ->
+        if (starts) delete(0, tag.length)
     }
 }
 
@@ -61,8 +53,7 @@ private fun readTable(): String {
 }
 
 private fun run() {
-    val parser = TableParser()
-    val listOfSizes = parser.getTableSizes(readTable())
+    val listOfSizes = getTableSizes(readTable())
     println(listOfSizes.joinToString(separator = " "))
 }
 

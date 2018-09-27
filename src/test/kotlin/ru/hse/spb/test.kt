@@ -8,8 +8,7 @@ class TestSource {
     @Test
     fun test1() {
         val string = "<table><tr><td></td></tr></table>"
-        val parser = TableParser()
-        val listOfSizes = parser.getTableSizes(string)
+        val listOfSizes = getTableSizes(string)
         assertEquals(listOf(1), listOfSizes)
     }
 
@@ -25,8 +24,7 @@ class TestSource {
                 "</td>\n" +
                 "</tr>\n" +
                 "</table>"
-        val parser = TableParser()
-        val listOfSizes = parser.getTableSizes(string)
+        val listOfSizes = getTableSizes(string)
         assertEquals(listOf(1, 4), listOfSizes)
     }
 
@@ -40,8 +38,7 @@ class TestSource {
                 "</td></tr></table>\n" +
                 "</td></tr></table>\n" +
                 "</td></tr></table>"
-        val parser = TableParser()
-        val listOfSizes = parser.getTableSizes(string)
+        val listOfSizes = getTableSizes(string)
         assertEquals(listOf(1, 1, 1, 3), listOfSizes)
     }
 }
