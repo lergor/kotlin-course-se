@@ -7,15 +7,15 @@ class Scopes {
     private val scopes: Stack<Scope> = Stack()
     private var currentScope: Scope? = null
 
-    private fun createNewScope(): Scope = if (scopes.empty()) Scope() else scopes.peek().clone()
+    private fun makeNewScope(): Scope = if (scopes.empty()) Scope() else Scope(scopes.peek())
 
-    fun newScope() {
-        currentScope = createNewScope()
+    fun createNewScope() {
+        currentScope = makeNewScope()
     }
 
     fun currentScope(): Scope = currentScope ?: scopes.peek()
 
-    fun push() = scopes.push(currentScope ?: createNewScope()).also { currentScope = null }
+    fun push() = scopes.push(currentScope ?: makeNewScope()).also { currentScope = null }
 
     fun pop() = scopes.pop()
 }

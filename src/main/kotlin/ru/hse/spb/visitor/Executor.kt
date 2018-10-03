@@ -11,6 +11,7 @@ class Executor(private val writer: Writer) : FunBaseVisitor<Int?>() {
     private val scopes = Scopes()
 
     private fun evaluateBlock(block: FunParser.BlockContext): Int? {
+        scopes.createNewScope()
         scopes.push()
         val result = visitBlock(block)
         scopes.pop()
@@ -49,24 +50,24 @@ class Executor(private val writer: Writer) : FunBaseVisitor<Int?>() {
     }
 
     override fun visitWhileStatement(ctx: FunParser.WhileStatementContext): Int? {
+        scopes.createNewScope()
+        scopes.push()
         fun conditionIsTrue(): Boolean {
-            scopes.newScope()
+            scopes.createNewScope()
             val condition = (visit(ctx.expression()) == 1)
             if (!condition) scopes.push()
             return condition
         }
 
-        var i = 0
-        while (conditionIsTrue() && i < 10) {
-            val result = visitBlock(ctx.blockWithBraces().block())
+        while (conditionIsTrue()) {
+            val result = visitBlockWithBraces(ctx.blockWithBraces())
             if (result != null) return result
-            i += 1
         }
         return null
     }
 
     override fun visitIfStatement(ctx: FunParser.IfStatementContext): Int? {
-        scopes.newScope()
+        scopes.createNewScope()
         val condition = visit(ctx.expression()) == 1
         return when {
             condition -> visitBlockWithBraces(ctx.blockWithBraces()[0])
@@ -143,28 +144,29 @@ class Executor(private val writer: Writer) : FunBaseVisitor<Int?>() {
     private fun callBuiltInFunction(function: String, args: FunParser.ArgumentsContext): Int? {
         when (function) {
             "println" -> {
-                for (expression in args.expression()) {
-                    writer.write(visit(expression).toString() + " ")
-                }
-                writer.write(System.lineSeparator())
+                val string = args.expression().map { e -> visit(e).toString() }.joinToString(" ")
+                writer.write(string + System.lineSeparator())
                 writer.flush()
                 return null
             }
         }
-        return null
+        throw FunctionNotFound("Function $function is not builtin")
     }
 
     override fun visitFunctionCallExpression(ctx: FunParser.FunctionCallExpressionContext): Int? {
         val name = ctx.Identifier().text
         if (name in builtInFunctions) return callBuiltInFunction(name, ctx.arguments())
-        scopes.newScope()
+        scopes.createNewScope()
         val scope = scopes.currentScope()
         val funcBody = scope.getFunction(name)
         for (index in 0 until funcBody.parameters.size) {
             val expression = ctx.arguments().expression(index)
             val result = visit(expression)
-            if (result != null) scope.setVariable(funcBody.parameters[index], result)
+            if (result != null) scope.addVariable(funcBody.parameters[index], result)
         }
-        return visitBlockWithBraces(funcBody.body) ?: return 0
+        scopes.push()
+        val result = visitBlockWithBraces(funcBody.body) ?: return 0
+        scopes.pop()
+        return result
     }
 }

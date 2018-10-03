@@ -11,7 +11,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.Assert.*
 import ru.hse.spb.visitor.*
 
-class TestEvaluation {
+class TestExecutor {
 
     private val sep = "\n"
 
@@ -24,7 +24,7 @@ class TestEvaluation {
     }
 
     @Test
-    fun additionOperationsEvaluation() {
+    fun additionOperations() {
         val program =
                 "println(17 + 12)" + sep +
                 "println(17 - 12)" + sep
@@ -35,7 +35,7 @@ class TestEvaluation {
     }
 
     @Test
-    fun multiplicationOperationsEvaluation() {
+    fun multiplicationOperations() {
         val program =
                 "println(3 * 3)" + sep +
                 "println(3 / 3)" + sep +
@@ -47,7 +47,7 @@ class TestEvaluation {
     }
 
     @Test
-    fun equalityOperationsEvaluation() {
+    fun equalityOperations() {
         val program =
                 "println(2 == 3)" + sep +
                 "println(2 == 2)" + sep +
@@ -60,7 +60,7 @@ class TestEvaluation {
     }
 
     @Test
-    fun relationOperationsEvaluation() {
+    fun relationOperations() {
         val program =
                 "println(2 > 3)"    + sep +
                 "println(3 > 2)"    + sep +
@@ -80,12 +80,12 @@ class TestEvaluation {
     }
 
     @Test
-    fun logicalOperationsEvaluation() {
+    fun logicalOperations() {
         val program =
-                    "println((2 > 3) || (3 > 2))\n" +
-                    "println((2 > 3) || (1 > 2))\n" +
-                    "println((2 > 3) && (3 > 2))\n" +
-                    "println((3 > 2) && (3 > 1))\n"
+                    "println((2 > 3) || (3 > 2))" + sep +
+                    "println((2 > 3) || (1 > 2))" + sep +
+                    "println((2 > 3) && (3 > 2))" + sep +
+                    "println((3 > 2) && (3 > 1))" + sep
         val writer = StringWriter()
         executeProgram(program, writer)
         val results = writer.buffer.split(sep).filter { s -> s.isNotEmpty() }
@@ -102,7 +102,7 @@ class TestEvaluation {
     }
 
     @Test
-    fun whileStatementEvaluation() {
+    fun whileStatement() {
         val program =   "var i = 0"           + sep +
                         "while (i < 10) {"    + sep +
                         "   i = i + 1"        + sep +
@@ -110,11 +110,11 @@ class TestEvaluation {
                         "println(i)"          + sep
         val writer = StringWriter()
         executeProgram(program, writer)
-//        assertEquals("10", writer.toString().replace(sep, ""))
+        assertEquals("10", writer.toString().replace(sep, ""))
     }
 
     @Test
-    fun returnEvaluation() {
+    fun returnStatement() {
         val program = "return 1"
         val writer = StringWriter()
         val res = executeProgram(program, writer)
@@ -122,7 +122,7 @@ class TestEvaluation {
     }
 
     @Test
-    fun ifStatementEvaluation() {
+    fun ifStatement() {
         val program =
                 "var i = 5"         + sep +
                 "if (i < 10) {"     + sep +
@@ -131,11 +131,11 @@ class TestEvaluation {
                 "println(i)"        + sep
         val writer = StringWriter()
         executeProgram(program, writer)
-//        assertEquals("6", writer.toString().replace(sep, ""))
+        assertEquals("6", writer.toString().replace(sep, ""))
     }
 
     @Test
-    fun ifWithElseStatementEvaluation() {
+    fun ifWithElseStatement() {
         val program =
                 "var i = 0"         + sep +
                 "if (i > 10) {"     + sep +
@@ -146,11 +146,11 @@ class TestEvaluation {
                 "println(i)"        + sep
         val writer = StringWriter()
         executeProgram(program, writer)
-//        assertEquals("2", writer.toString().replace(sep, ""))
+        assertEquals("2", writer.toString().replace(sep, ""))
     }
 
     @Test
-    fun functionDeclarationStatementEvaluation() {
+    fun functionDeclarationStatement() {
         val program =
                 "fun fib(n) {"                          + sep +
                 "    if (n <= 1) {"                     + sep +
@@ -161,11 +161,11 @@ class TestEvaluation {
                 "println(fib(5))"                       + sep
         val writer = StringWriter()
         executeProgram(program, writer)
-//        assertEquals("8", writer.toString().replace(" \n", ""))
+        assertEquals("8", writer.toString().replace(sep, ""))
     }
 
     @Test
-    fun variableDeclarationStatementEvaluation() {
+    fun variableDeclarationStatement() {
         val programVarWithValue =
                         "var i = 9"     + sep +
                         "println(i)"    + sep
@@ -184,7 +184,7 @@ class TestEvaluation {
 
 
     @Test
-    fun functionCallEvaluation() {
+    fun functionCall() {
         val program =
                 "fun fact(n) {"                 + sep +
                 "    if (n == 0) {"             + sep +
@@ -194,8 +194,8 @@ class TestEvaluation {
                 "}"                             + sep +
                 "println(fact(5))"              + sep
         val writer = StringWriter()
-//        executeProgram(program, writer)
-//        assertEquals("120", writer.toString().replace(sep, ""))
+        executeProgram(program, writer)
+        assertEquals("120", writer.toString().replace(sep, ""))
     }
 
     @Test
@@ -212,14 +212,14 @@ class TestEvaluation {
 
 
     @Test(expected = FunctionNotFound::class)
-    fun functionNotDeclared() {
+    fun undeclaredFunctionStatement() {
         val program = "println(foo())"
         val writer = StringWriter()
         executeProgram(program, writer)
     }
 
     @Test(expected = VariableRedeclarationException::class)
-    fun duplicateVariableDeclaration() {
+    fun variableRedeclaration() {
         val program =
                 "var a = 2" + sep +
                 "var a = 3" + sep
@@ -227,7 +227,7 @@ class TestEvaluation {
     }
 
     @Test(expected = FunctionRedeclarationException::class)
-    fun duplicateFunctionDeclaration() {
+    fun functionRedeclaration() {
         val program =
                 "fun foo() {"       + sep +
                 "    var i = 17"    + sep +
@@ -239,16 +239,17 @@ class TestEvaluation {
     }
 
     @Test(expected = VariableNotFound::class)
-    fun undeclaredVarStatementEvaluation() {
+    fun undeclaredVariableStatement() {
         val programVarWithoutValue = "i = 10"
         executeProgram(programVarWithoutValue, StringWriter())
     }
 
     @Test(expected = NotDefinedException::class)
-    fun undefinedVarStatementEvaluation() {
+    fun undefinedVariableStatement() {
         val programVarWithoutValue =
                 "var a"         + sep +
                 "println(a)"    + sep
         executeProgram(programVarWithoutValue, StringWriter())
     }
+
 }
