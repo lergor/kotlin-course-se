@@ -6,7 +6,7 @@ fun result() =
             document {
                 documentClass("beamer")
                 usepackage("babel", "russian" /* varargs */)
-                document {
+                documentBody {
                     frame(frameTitle = "frametitle", options = *arrayOf("arg1" to "arg2")) {
                         itemize {
                             for (row in listOf("kek1", "kek2", "kek3")) {

@@ -192,7 +192,7 @@ class TeXDocument : WrappedTag("") {
 
     fun date(date: String) = initTag(Date(date))
 
-    fun document(init: DocumentBody.() -> Unit) = initTag(DocumentBody(), init)
+    fun documentBody(init: DocumentBody.() -> Unit) = initTag(DocumentBody(), init)
 
     override fun render(builder: StringBuilder) {
         children.forEach { it.render(builder) }

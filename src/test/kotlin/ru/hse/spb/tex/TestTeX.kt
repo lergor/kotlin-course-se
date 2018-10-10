@@ -3,7 +3,7 @@ package ru.hse.spb.tex
 import kotlin.test.assertEquals
 import org.junit.Test
 
-class TesTex {
+class TestTex {
 
     @Test
     fun documentClass() {
@@ -67,7 +67,7 @@ class TesTex {
     @Test
     fun itemize() {
         val result = document {
-            document {
+            documentBody {
                 itemize("param1" to "opt1") {
                     for (item in 1..3) {
                         item {
@@ -95,7 +95,7 @@ class TesTex {
     @Test
     fun enumerate() {
         val result = document {
-            document {
+            documentBody {
                 enumerate {
                     for (item in 1..3) {
                         item {
@@ -123,7 +123,7 @@ class TesTex {
     @Test
     fun frame() {
         val result = document {
-            document {
+            documentBody {
                 frame("KEKFrame", "param1" to "opt1", "param2" to "opt2") {
                     +"kek"
                 }
@@ -143,7 +143,7 @@ class TesTex {
     @Test
     fun customTag() {
         val result = document {
-            document {
+            documentBody {
                 frame("KEKFrame", "param1" to "opt1") {
                     customTag("one", listOf("two"), "param2" to "opt2") {
                         +"kek1"
@@ -171,7 +171,7 @@ class TesTex {
     @Test
     fun math() {
         val result = document {
-            document {
+            documentBody {
                 math {
                     +"\\psi(x) \\to \\exists(x) \\psi(x)"
                 }
@@ -190,18 +190,18 @@ class TesTex {
     @Test
     fun alignment() {
         val result = document {
-            document {
-                center {
-                    +"central kek"
+            documentBody {
+                right {
+                    +"right kek"
                 }
             }
         }.toString()
 
         assertEquals("""
             |\begin{document}
-            |\begin{center}
-            |central kek
-            |\end{center}
+            |\begin{right}
+            |right kek
+            |\end{right}
             |\end{document}
             |""".trimMargin(), result)
     }
@@ -215,7 +215,7 @@ class TesTex {
             author("thats me")
             date("today")
             title("KEK document")
-            document {
+            documentBody {
                 +"document content"
             }
         }.toString()
