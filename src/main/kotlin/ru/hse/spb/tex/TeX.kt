@@ -64,7 +64,7 @@ abstract class WrappedTag(
     }
 
     operator fun String.unaryPlus() {
-        children.add(TextElement(this))
+        children += TextElement(this)
     }
 
     override fun render(builder: StringBuilder) {
@@ -149,17 +149,12 @@ class Math(options: List<Pair<String, String>>)
     : WrappedTag("displaymath", options = Options(options))
 
 class Alignment(type: AlignmentType) : TeXWrappedTag(type.toString()) {
-    enum class AlignmentType {
-        CENTER {
-            override fun toString() = "center"
-        },
-        RIGHT {
-            override fun toString() = "right"
-        },
-        LEFT {
-            override fun toString() = "left"
-        }
+    enum class AlignmentType(private val property: String) {
+        CENTER("center"),
+        RIGHT("right"),
+        LEFT("left");
 
+        override fun toString(): String = property
     }
 }
 
@@ -199,9 +194,7 @@ class TeXDocument : WrappedTag("") {
     }
 
     override fun toString(): String {
-        val builder = StringBuilder()
-        render(builder)
-        return builder.toString()
+        return buildString { render(this@buildString) }
     }
 
     fun toOutputStream(os: OutputStream) {
